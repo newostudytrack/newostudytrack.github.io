@@ -39,7 +39,9 @@ label{display:block;margin:10px 0;font-size:13px;color:var(--mu)}label input{dis
 table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px 6px;border-bottom:1px solid var(--ln)}th[data-a]{cursor:pointer}
 .clk{font-size:56px;font-weight:700;font-variant-numeric:tabular-nums;margin:8px 0}
 .gr{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}.gr b{display:block;font-size:26px}.gr span{color:var(--mu);font-size:13px}
-.ch{display:flex;gap:3px;align-items:flex-end;height:120px;margin:10px 0 24px}
+.ch{display:flex;gap:3px;align-items:flex-end;height:120px;margin:10px 0 24px;position:relative}
+.fit{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:hidden}
+.fit line{stroke:var(--tx);stroke-width:2;stroke-dasharray:5 4;vector-effect:non-scaling-stroke;opacity:.75}
 .c{flex:1;position:relative;height:100%;display:flex;align-items:flex-end;gap:1px}
 .c i{flex:1;background:var(--ac);border-radius:3px 3px 0 0;min-height:1px}.c i.g{background:var(--ln)}
 .c s{position:absolute;bottom:-18px;left:-4px;right:-4px;text-align:center;font-size:10px;color:var(--mu);text-decoration:none}
@@ -153,7 +155,8 @@ if(am==="up2")return t+`<h2>Choose your ${dr8.prog} subjects</h2><form data-f="u
 if(am==="fg")return t+`<h2>Reset your password</h2><form data-f="fg"><label>Username or email<input name="who" required></label><p class="er"></p><button class="b w">Email me a reset link</button></form><p>${l("in","Back to sign in")}</p></section></div>`;
 return t+`<form data-f="in"><label>Username or email<input name="who" required autocomplete="username"></label><label>Password<input name="pw" type="password" required autocomplete="current-password"></label><p class="er"></p><button class="b w">Sign in</button></form><p class="mu">${l("fg","Forgot your password?")}</p><p class="mu">New here? ${l("up1","Create an account")}</p></section></div>`}
 /* ---------- widgets ---------- */
-const chart=(a,b,l)=>{const mx=Math.max(1,...a,...b);return`<div class="ch">${a.map((v,i)=>`<div class="c" title="${E(l[i]||i)}: you ${fm(v)}, average ${fm(b[i])}"><i style="height:${v/mx*100}%"></i><i class="g" style="height:${b[i]/mx*100}%"></i><s>${E(l[i])}</s></div>`).join("")}</div>`};
+const fit=a=>{const n=a.length,mx=(n-1)/2,my=a.reduce((p,q)=>p+q,0)/n;let sxy=0,sxx=0;a.forEach((v,i)=>{sxy+=(i-mx)*(v-my);sxx+=(i-mx)**2});const m=sxy/sxx;return i=>my+m*(i-mx)};
+const chart=(a,b,l)=>{const mx=Math.max(1,...a,...b),f=a.some(v=>v>0)?fit(a):null;return`<div class="ch">${f?`<svg class="fit" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="${100-f(-.5)/mx*100}" x2="100" y2="${100-f(a.length-.5)/mx*100}"/></svg>`:""}${a.map((v,i)=>`<div class="c" title="${E(l[i]||i)}: you ${fm(v)}, average ${fm(b[i])}"><i style="height:${v/mx*100}%"></i><i class="g" style="height:${b[i]/mx*100}%"></i><s>${E(l[i])}</s></div>`).join("")}</div>`};
 function stats(u){const n=Math.max(1,1-days(u.born)),hh=Array(24).fill(0),wd=Array(7).fill(0),by={},av_=avgs(),k=Math.max(1,n/7);u.ses.forEach(a=>{hh[a.h]+=a.m;wd[dow(a.d)]+=a.m;by[a.d]=(by[a.d]||0)+a.m});const tot=u.ses.reduce((a,b)=>a+b.m,0);
 return`<section class="card"><h2>Study stats</h2><div class="gr"><div><b>${fm(tot/n)}</b><span>Your daily average</span></div><div><b>${fm(av_.H.reduce((a,b)=>a+b,0))}</b><span>Average Newington student</span></div><div><b>${fm(Math.max(0,...Object.values(by)))}</b><span>Your best day</span></div><div><b>${streak(u).best}</b><span>Best streak (days)</span></div></div></section>
 <section class="card"><h2>When you study</h2><p class="mu">Average minutes started in each hour of the day. Grey is the average student.</p>${chart(hh.map(v=>v/n),av_.H,hh.map((_,i)=>i%3?"":i))}</section>
