@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Newington Study</title>
+<title>Newington Study Tracker</title>
+   <link rel="icon" type="image/png" href="/images/icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#fff;--p:#f8f5f2;--ln:#ebe5df;--tx:#1f1c1a;--mu:#7b746d;--ac:#f57c36;--ac2:#fff0e5;--on:#1f1c1a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -99,19 +100,19 @@ import{getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmail
 import{getFirestore,doc,getDoc,setDoc,updateDoc,deleteDoc,addDoc,collection,getDocs,onSnapshot,arrayUnion,arrayRemove,increment,FieldPath}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* ===== 1. PASTE YOUR FIREBASE WEB APP CONFIG HERE (Project settings > Your apps) ===== */
-const FIREBASE_CONFIG={apiKey:"YOUR_API_KEY",authDomain:"YOUR_PROJECT.firebaseapp.com",projectId:"YOUR_PROJECT",appId:"YOUR_APP_ID"};
+const FIREBASE_CONFIG={apiKey:"AIzaSyApzuKQraEKqbFz39kFBKD40YOpP_xiNrQ",authDomain:"newostudytracker.firebaseapp.com",projectId:"newostudytracker",appId:"1:53532451692:web:b5cf8d1e76cab924f14949"};
 
 /* ===== 2. ADD SUBJECTS HERE. HSC is a flat list; IB is grouped (students pick 6, max 2 per group) ===== */
 const SUBJECTS={
-HSC:["English Advanced","English Standard","Mathematics Advanced","Mathematics Extension 1","Mathematics Extension 2","Physics","Chemistry","Biology","Economics","Legal Studies","Modern History","Business Studies","Software Engineering"],
+HSC:["English Studies","English EAL/D","English (Standard)","English (Advanced)","English Extension","English Extension 2 (Year 12)","Mathematics Standard","Mathematics Advanced","Mathematics Extension 1","Mathematics Extension 2 (Year 12)","Drama","Entertainment Industry VET","Business Services VET","Business Studies","Economics","Geography","Aboriginal Studies","Ancient History","History Extension (Year 12)","Legal Studies","Modern History","External Language Course","French","Chinese","Latin","Music 1","Music 2","Music Extension (Year 12)","Health and Movement Science","Studies of Religion I Accelerated","Studies of Religion II","Biology","Chemistry","Earth and Environmental Science","Physics","Science Extension (Year 12)","Construction VET","Design and Technology","Engineering Studies","Hopsitality VET","Industrial Technology","Food Technology"],
 IB:{"Studies in language and literature":["English A: Language and Literature","English A: Literature"],
-"Language acquisition":["French B","Japanese B","Mandarin B","Spanish B"],
-"Individuals and societies":["Economics","History","Business Management","Geography","Global Politics"],
-"Sciences":["Physics","Chemistry","Biology","Computer Science","Sports, Exercise and Health Science"],
-"Mathematics":["Mathematics: Analysis and Approaches","Mathematics: Applications and Interpretation"],
-"The arts":["Visual Arts","Music","Theatre","Film"]}};
+"Language acquisition":["French B","Chinese B","Italian ab initio","Latin","Spanish ab initio"],
+"Individuals and societies":["Economics","History","Business Management","Geography","Philosophy","Environmental Systems & Societies"],
+"Sciences":["Physics","Chemistry","Biology","Sports, Exercise and Health Science",],
+"Mathematics":["Mathematics: Analysis and Approaches SL","Mathematics: Analysis and Approaches HL","Mathematics: Applications and Interpretations SL","Mathematics: Applications and Interpretations HL"],
+"The arts":["Visual Arts","Music","Theatre"]}};
 /* ===== 3. EDIT KEY DATES HERE (YYYY-MM-DD). The next upcoming one is the big countdown ===== */
-const KEY_DATES=[{n:"Term 4 ends (example)",d:"2026-12-11"},{n:"Trial exams begin (example)",d:"2027-07-26"}];
+const KEY_DATES=[{n:"Year 11 Starts",d:"2027-01-28"},{n:"Year 12 Starts",d:"2028-01-28"}];
 
 const CONFIGURED=!FIREBASE_CONFIG.apiKey.startsWith("YOUR_");
 let auth,db;if(CONFIGURED){const app=initializeApp(FIREBASE_CONFIG);auth=getAuth(app);db=getFirestore(app);setPersistence(auth,browserLocalPersistence).catch(()=>{})}
