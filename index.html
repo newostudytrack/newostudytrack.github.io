@@ -395,7 +395,7 @@ document.addEventListener("selectionchange",()=>{const s=getSelection();if(s.ran
 addEventListener("pagehide",flush);
 const tip=document.createElement("div");tip.className="tt";tip.hidden=true;document.body.append(tip);
 const showTip=(c,x,y)=>{const me=+c.dataset.y,av=+c.dataset.v,d=me-av,p=av>=.5?Math.round(Math.abs(d)/av*100):0;
-tip.innerHTML=`<b>${E(c.dataset.h)}</b><br>You: ${fm(me)}<br>Average student: ${fm(av)}<br><span class="mu">${me<.5&&av<.5?"No study from either":Math.abs(d)<.5?"Right on the average":`${fm(Math.abs(d))} ${d>0?"above":"below"} average${p?` (${p}%)`:""}`}</span>`;
+tip.innerHTML=`<b>${E(c.dataset.h)}</b><br>You: ${fm(me)}<br>Average Newington student: ${fm(av)}<br><span class="mu">${me<.5&&av<.5?"No study from either":Math.abs(d)<.5?"Right on the average":`${fm(Math.abs(d))} ${d>0?"above":"below"} average${p?` (${p}%)`:""}`}</span>`;
 tip.hidden=false;const w=tip.offsetWidth,h=tip.offsetHeight;tip.style.left=Math.max(8,Math.min(innerWidth-w-8,x+14))+"px";tip.style.top=Math.max(8,y-h-14)+"px"};
 document.addEventListener("mousemove",e=>{const c=e.target.closest(".c[data-h]");if(c)showTip(c,e.clientX,e.clientY);else tip.hidden=true});
 document.addEventListener("mouseleave",()=>tip.hidden=true);
