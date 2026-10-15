@@ -97,7 +97,8 @@ dialog::backdrop{background:#0007}dialog .rw{flex-direction:row-reverse}dialog i
 <script type="module">
 import{createClient}from"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm";
 /* ===== Supabase layer: same function names the app already uses, backed by one "docs" table ===== */
-let SBC;
+let SBC,CFG=["",""],TOK="";
+const beacon=(fn,body)=>{try{fetch(CFG[0]+"/rest/v1/rpc/"+fn,{method:"POST",keepalive:true,headers:{apikey:CFG[1],Authorization:"Bearer "+TOK,"Content-Type":"application/json"},body:JSON.stringify(body)})}catch{}};
 const par=p=>p.replace(/\/[^/]+$/,""),nid=()=>crypto.randomUUID().replace(/-/g,"").slice(0,20),ck=r=>{if(r.error)throw r.error;return r};
 class FieldPath{constructor(...p){this.p=p}}
 class GoogleAuthProvider{}
@@ -133,9 +134,9 @@ const sendPasswordResetEmail=async(a,email)=>{const{error}=await SBC.auth.resetP
 const signOut=()=>SBC.auth.signOut();
 const signInWithPopup=async()=>{const{error}=await SBC.auth.signInWithOAuth({provider:"google",options:{redirectTo:here()}});if(error)throw aerr(error);await new Promise(()=>{})};
 const recover=async()=>{const p=await ask("Choose a new password (8 or more characters)",1);if(!p)return;if(p.length<8)return ask("That password is too short.");const{error}=await SBC.auth.updateUser({password:p});ask(error?"Couldn't change it: "+error.message:"Password updated.")};
-const onAuthStateChanged=(a,cb)=>{let last;SBC.auth.onAuthStateChange((ev,s)=>{const u=SU(s?.user);a.currentUser=u;if(ev==="PASSWORD_RECOVERY")setTimeout(recover,600);const id=u?u.uid:null;if(id===last)return;last=id;setTimeout(()=>cb(u),0)})};
+const onAuthStateChanged=(a,cb)=>{let last;SBC.auth.onAuthStateChange((ev,s)=>{const u=SU(s?.user);a.currentUser=u;TOK=s?.access_token||"";if(ev==="PASSWORD_RECOVERY")setTimeout(recover,600);const id=u?u.uid:null;if(id===last)return;last=id;setTimeout(()=>cb(u),0)})};
 
-const initSupabase=(url,key)=>{SBC=createClient(url,key);return[{currentUser:null},{}]};
+const initSupabase=(url,key)=>{CFG=[url,key];SBC=createClient(url,key);return[{currentUser:null},{}]};
 
 /* ===== 1. PASTE YOUR SUPABASE URL + ANON KEY HERE (Project Settings > API) ===== */
 const SUPABASE_URL="https://xadhjnnurxcscvximkyc.supabase.co",SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhZGhqbm51cnhjc2N2eGlta3ljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMTYzMTMsImV4cCI6MjEwNzU5MjMxM30.ZQ-BWpfj075fzkT4ZofH3gFtaJlGNb1LhXax3cRjK6w";
@@ -359,6 +360,12 @@ function watch(){offS.forEach(f=>f());offS=[];subKey=JSON.stringify(ME.subs);ME.
 function start(id){ME={id,ses:[],ev:[],res:[],tasks:[],pn:{}};
 off.push(onSnapshot(collection(db,"users"),s=>{USERS=s.docs.map(d=>({id:d.id,...d.data()}));usersLoaded=true;const m=P(id);if(m){Object.assign(ME,m);if(JSON.stringify(ME.subs)!==subKey)watch()}soft()},console.error));
 off.push(onSnapshot(pref(id),s=>{if(s.exists())Object.assign(ME,s.data());soft()},console.error))}
+addEventListener("pagehide",()=>{const u=ME;if(!u||!u.timer)return;const t=u.timer,sec=Math.round((Date.now()-t.st)/1e3),clr={k:["timer"],o:"set",v:null};u.timer=null;
+if(sec<1)return beacon("doc_update",{p_path:"users/"+u.id,p_ops:[clr]});
+const m=sec/60,h=new Date(t.st).getHours(),d=ymd(t.st),inc=(k,v)=>({k,o:"inc",v});
+beacon("doc_update",{p_path:"priv/"+u.id,p_ops:[{k:["ses"],o:"union",v:[{d,h,m,sec,s:t.s}]}]});
+beacon("doc_update",{p_path:"users/"+u.id,p_ops:[clr,inc(["tot",t.s],m),inc(["hrs",String(h)],m),inc(["wds",String(dow(d))],m)]})});
+addEventListener("pageshow",e=>{if(e.persisted)location.reload()});
 if(CONFIGURED)onAuthStateChanged(auth,fu=>{off.forEach(f=>f());offS.forEach(f=>f());off=[];offS=[];USERS=[];TOP={};EXM={};ME=null;subKey="";EDSUB?.forEach(f=>f());EDSUB=null;clearInterval(EDHB);edit=null;authOn=true;usersLoaded=false;if(!fu&&wasIn&&!creating)am="in";wasIn=!!fu;if(fu)start(fu.uid);render()});
 const emailFor=async w=>{if(w.includes("@"))return w.toLowerCase();const s=await getDoc(doc(db,"usernames",w.toLowerCase()));if(!s.exists())throw 0;return s.data().email};
 const authErr=e=>({"auth/email-already-in-use":"That email already has an account.","auth/weak-password":"Password needs at least 8 characters.","x/taken":"That username is taken."}[e.code]||"Something went wrong ("+(e.code||e.message)+").");
